@@ -9,7 +9,7 @@ class Sine(object):
     """
     
     sr = 44100
-    ksmps = 5
+    ksmps = 10
     
     def __init__(self, amp=1.0, freq=440, phase=0.0):
         self.amp = amp
@@ -32,5 +32,6 @@ class Sine(object):
 if __name__ == "__main__":
     # protocol.server(i + j for i, j in itertools.izip(Sine(1, 4410, 0.25), Sine(0.5, 8820)))
     server = protocol.Server()
-    server.listen()
     server.ack()
+    for i, j in itertools.izip(Sine(1, 4410, 0.25), Sine(0.5, 8820)):
+        server.transfer(i + j)

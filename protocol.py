@@ -5,76 +5,108 @@ Version: 0.0.1
 
 Specification:
 Header
-version, UID, rate, timestamp, compression, timeout
+version, UID, channels, compression, rate, timestamp, timeout
 
 Data
-timestamp, index, channels, [signals,...],
+timestamp, index, [signals,...],
 
 """
 import socket
 import struct
 import ujson
+import uuid
+import time
 
 
 HOST = socket.gethostname()
 PORT = 12345
 
-HEADER = ['version', 'uid', 'rate', 'timestamp', 'compression', 'timeout']
-DATA = {'timestamp': 0, 'index': 0, 'channels': 0, 'signals': []}
+
+HEADER = {
+    'version': 0.01,
+    'uid': str(uuid.uuid4()),
+    'rate': 120,
+    'compression': 0,
+    'channels': 1,
+    'timestamp': int(time.time()),
+    'timeout': 20,
+}
+
+DATA = {
+    'distance': 0,
+    'index': 0,
+    'signals': []
+}
 
 f2b = lambda f: struct.pack('f', f)
 b2f = lambda b: struct.unpack('f', b)[0]
+jload = lambda j: ujson.loads(j)
+jdump = lambda d: ujson.dumps(d)
 
 
 class Server(object):
-    def __init__(self):
-        self.server = socket.socket()
-        self.server.bind((HOST, PORT))
-        self.connection = None
+    def __init__(self, ):
+        self.server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.server.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, 20)
         self.address = None
-
-    def listen(self):
-        self.server.listen(5)
-        while not self.connection:
-            self.connection, self.address = self.server.accept()
-        print 'Connected to %s : %s' % self.address
+        self.header = HEADER
+        self.distance = time.time()
+        self.index = 0
 
     def ack(self):
-        self.transfer(ujson.dumps(HEADER))
+        self.server.sendto(jdump(self.header), (HOST, PORT))
 
     def transfer(self, msg):
-        self.connection.send(msg)
+        self.server.sendto(self.payload(msg), (HOST, PORT))
+
+    def payload(self, signals):
+        self.index += 1
+        now = time.time()
+        distance = now - self.distance
+        self.distance = now
+        return jdump({'signals': signals, 'index': self.index, 'distance': distance})
 
     def close(self):
-        self.connection.close()
+        self.server.close()
 
 
 class Client(object):
-    def __init__(self, header):
-        self.client = socket.socket()
-        self.client.connect((HOST, PORT))
-        self.block = 4
+    def __init__(self):
+        self.client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.client.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        try:
+            self.client.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+        except AttributeError:
+            print 'Some systems do not support SO_REUSEPORT'
+        self.client.setsockopt(socket.SOL_IP, socket.IP_MULTICAST_TTL, 20)
+        self.client.setsockopt(socket.SOL_IP, socket.IP_MULTICAST_LOOP, 1)
+        self.client.bind(('', PORT))
+        self.client.setsockopt(socket.SOL_IP, socket.IP_MULTICAST_IF, socket.inet_aton(socket.gethostbyname(HOST)))
+        self.buf_size = 1024
         self.acked = False
-        self.header = header
+        self.addr = None
+        self.header = HEADER
 
     def ack(self):
-        msg = ujson.loads(self.receive(10).next())
-        if msg in self.header:
+        data, self.addr = self.client.recvfrom(self.buf_size)
+        self.header.update(jload(data))
+        if self.header:
             self.acked = True
             print 'Acknowledged.'
+            print self.header
+            return True
         else:
             print 'Try again..'
+            return False
 
-    def receive(self, block=None):
-        block = block or self.block
-        while True:
-            msg = self.client.recv(block)
-            if not msg:
-                print 'No more msg.'
-                break
-            else:
-                yield msg
+    def receive(self):
+        msg, self.addr = self.client.recvfrom(self.buf_size)
+        msg = jload(msg)
+        if msg:
+            yield msg
 
     def close(self):
+        self.client.setsockopt(socket.SOL_IP, socket.IP_DROP_MEMBERSHIP,
+                               socket.inet_aton(self.addr) + socket.inet_aton('0.0.0.0'))
         self.client.close()
 
