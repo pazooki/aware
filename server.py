@@ -34,4 +34,6 @@ if __name__ == "__main__":
     server = protocol.Server()
     server.ack()
     for i, j in itertools.izip(Sine(1, 4410, 0.25), Sine(0.5, 8820)):
-        server.transfer(i + j)
+        payload = [i + j, i - j, i * j]
+        print payload
+        server.transfer(payload)
