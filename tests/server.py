@@ -1,6 +1,6 @@
 import math
 import itertools
-from aware import protocol
+import protocol
 from generators import Sine
 
 if __name__ == "__main__":
