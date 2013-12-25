@@ -1,5 +1,4 @@
-import protocol
-
+from aware import protocol
 
 if '__main__' == __name__:
     client = protocol.Client()
