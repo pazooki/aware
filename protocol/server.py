@@ -1,12 +1,13 @@
 from protocol import *
 
+
 class Server(object):
     def __init__(self, ):
         self.server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.server.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, 20)
         self.address = None
         self.header = HEADER
-        self.distance = time.time()
+        self.latency = time.time()
         self.index = 0
 
     def ack(self):
@@ -18,10 +19,15 @@ class Server(object):
 
     def payload(self, data, signals):
         self.index += 1
-        now = time.time()
-        distance = now - self.distance
-        self.distance = now
-        return jdump({'data': data, 'signals': signals, 'index': self.index, 'distance': distance})
+        return jdump({'data': data, 'signals': signals, 'index': self.index, 'latency': self._latency})
 
     def close(self):
+        self.transfer('off', [])
         self.server.close()
+
+    @property
+    def _latency(self):
+        now = time.time()
+        latency = now - self.latency
+        self.latency = now
+        return latency

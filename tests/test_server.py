@@ -1,20 +1,10 @@
-import math
 import itertools
 from protocol.server import Server
-from generators import Sine
+from generators import Wave
 
 if __name__ == "__main__":
-    # protocol.server(i + j for i, j in itertools.izip(Sine(1, 4410, 0.25), Sine(0.5, 8820)))
     server = Server()
     server.ack()
-    for i in Sine(0.5, 8820):
-        payload = [i]
-        print payload
-        server.transfer('sig', payload)
-
-    server.transfer('off', [])
-
-    # for i, j in itertools.izip(Sine(1, 4410, 0.25), Sine(0.5, 8820)):
-    #     payload = [i + j, i - j, i * j]
-    #     print payload
-    #     server.transfer(payload)
+    for sin, cos in itertools.izip(Wave(form='sin', amp=1, freq=1000), Wave(form='cos', amp=0.5, freq=440)):
+        server.transfer('sig', [sin, cos])
+    server.close()
