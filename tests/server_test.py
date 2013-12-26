@@ -1,11 +1,11 @@
 import math
 import itertools
-import protocol
+from aware.protocol.server import Server
 from generators import Sine
 
 if __name__ == "__main__":
     # protocol.server(i + j for i, j in itertools.izip(Sine(1, 4410, 0.25), Sine(0.5, 8820)))
-    server = protocol.Server()
+    server = Server()
     server.ack()
     for i in Sine(0.5, 8820):
         payload = [i]

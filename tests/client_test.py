@@ -1,7 +1,7 @@
-from aware import protocol
+from aware.protocol.client import Client
 
 if '__main__' == __name__:
-    client = protocol.Client()
+    client = Client()
     client.ack()
     for msg in client.listen():
         print msg
