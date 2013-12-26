@@ -20,9 +20,11 @@ import time
 
 HOST = socket.gethostname()
 PORT = 12345
+IP = '127.0.0.1'
 
 
 HEADER = {
+    'data': 'ack',
     'version': 0.01,
     'uid': str(uuid.uuid4()),
     'rate': 120,
@@ -33,6 +35,7 @@ HEADER = {
 }
 
 DATA = {
+    'data': 'sig',
     'distance': 0,
     'index': 0,
     'signals': []

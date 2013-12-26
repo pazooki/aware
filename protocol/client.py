@@ -7,6 +7,7 @@ class Client(object):
         self.acked = False
         self.addr = None
         self.header = HEADER
+        self.intf = socket.gethostbyname(HOST)
 
         self.client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.client.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -17,16 +18,17 @@ class Client(object):
         self.client.setsockopt(socket.SOL_IP, socket.IP_MULTICAST_TTL, 20)
         self.client.setsockopt(socket.SOL_IP, socket.IP_MULTICAST_LOOP, 1)
         self.client.bind(('', PORT))
-        self.client.setsockopt(socket.SOL_IP, socket.IP_MULTICAST_IF, socket.inet_aton(socket.gethostbyname(HOST)))
+        self.client.setsockopt(socket.SOL_IP, socket.IP_MULTICAST_IF, socket.inet_aton(self.intf))
+        self.client.setsockopt(socket.SOL_IP, socket.IP_ADD_MEMBERSHIP, socket.inet_aton(IP) + socket.inet_aton(self.intf))
 
     def ack(self):
         self.acked = False
         while not self.acked:
-            self.header.update(self.listen().next())
-            if self.header:
+            header = self.listen().next()
+            if header.get('data') in ['ack']:
+                self.header.update(header)
                 self.acked = True
-                print 'Acknowledged - Header: ', self.header
-                self.acked = True
+                print 'Header: ', self.header
             else:
                 print 'Try again..'
 
@@ -34,13 +36,16 @@ class Client(object):
         while True:
             msg, self.addr = self.client.recvfrom(self.buf_size)
             msg = jload(msg)
-            if msg:
+            if msg.get('data') in ['sig']:
                 yield msg
-
-            if msg in ['off']:
+            elif msg.get('data') in ['off']:
+                yield msg
+                break
+            elif msg.get('data') in ['ack']:
+                yield msg
                 break
 
     def close(self):
-        self.client.setsockopt(socket.SOL_IP, socket.IP_DROP_MEMBERSHIP,
-                               socket.inet_aton(self.addr) + socket.inet_aton('0.0.0.0'))
+        print socket.inet_aton(self.addr[0]) + socket.inet_aton('0.0.0.0')
+        self.client.setsockopt(socket.SOL_IP, socket.IP_DROP_MEMBERSHIP, socket.inet_aton(self.addr[0]) + socket.inet_aton('0.0.0.0'))
         self.client.close()

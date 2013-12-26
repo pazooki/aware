@@ -1,6 +1,6 @@
 import math
 import itertools
-from aware.protocol.server import Server
+from protocol.server import Server
 from generators import Sine
 
 if __name__ == "__main__":
@@ -10,7 +10,9 @@ if __name__ == "__main__":
     for i in Sine(0.5, 8820):
         payload = [i]
         print payload
-        server.transfer(payload)
+        server.transfer('sig', payload)
+
+    server.transfer('off', [])
 
     # for i, j in itertools.izip(Sine(1, 4410, 0.25), Sine(0.5, 8820)):
     #     payload = [i + j, i - j, i * j]

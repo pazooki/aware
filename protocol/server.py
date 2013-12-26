@@ -10,17 +10,18 @@ class Server(object):
         self.index = 0
 
     def ack(self):
+        print self.header
         self.server.sendto(jdump(self.header), (HOST, PORT))
 
-    def transfer(self, msg):
-        self.server.sendto(self.payload(msg), (HOST, PORT))
+    def transfer(self, data, msg):
+        self.server.sendto(self.payload(data, msg), (HOST, PORT))
 
-    def payload(self, signals):
+    def payload(self, data, signals):
         self.index += 1
         now = time.time()
         distance = now - self.distance
         self.distance = now
-        return jdump({'signals': signals, 'index': self.index, 'distance': distance})
+        return jdump({'data': data, 'signals': signals, 'index': self.index, 'distance': distance})
 
     def close(self):
         self.server.close()
