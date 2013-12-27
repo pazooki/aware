@@ -36,7 +36,7 @@ HEADER = {
 
 DATA = {
     'data': 'sig',
-    'distance': 0,
+    'latency': 0,
     'index': 0,
     'signals': []
 }

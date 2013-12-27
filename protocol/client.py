@@ -23,7 +23,7 @@ class Client(object):
                 self.acked = True
                 print 'Header: ', self.header
             else:
-                print 'Try again..'
+                print '\rTry again..',
 
     def listen(self):
         while True:
@@ -31,8 +31,10 @@ class Client(object):
             msg = jload(msg)
             if msg.get('data') in ['sig']:
                 yield msg
-            elif msg.get('data') in ['off', 'ack']:
+            elif msg.get('data') in ['ack']:
                 yield msg
+                break
+            elif msg.get('data') in ['off']:
                 break
 
     def close(self):

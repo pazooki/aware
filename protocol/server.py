@@ -11,7 +11,6 @@ class Server(object):
         self.index = 0
 
     def ack(self):
-        print self.header
         self.server.sendto(jdump(self.header), (HOST, PORT))
 
     def transfer(self, data, msg):
