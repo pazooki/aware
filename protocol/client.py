@@ -1,4 +1,4 @@
-from protocol import *
+from definition import *
 
 
 class Client(object):

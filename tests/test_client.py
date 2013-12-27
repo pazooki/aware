@@ -1,5 +1,5 @@
 from protocol.client import Client
-from protocol.signal import Signal
+from protocol.definition import Signal
 
 if '__main__' == __name__:
     client = Client()
