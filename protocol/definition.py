@@ -1,3 +1,4 @@
+# TODO: use Cython structs
 """
 Implementation of signal protocol.
 Version: 0.0.1
@@ -5,10 +6,10 @@ Version: 0.0.1
 
 Specification:
 Header
-version, UID, channels, compression, rate, timestamp, timeout
+data, version, UID, rate, compression, channels, timestamp, timeout
 
 Data
-timestamp, index, [signals,...],
+data, latency, index, [signals,...],
 
 """
 import socket
@@ -41,10 +42,17 @@ DATA = {
     'signals': []
 }
 
-f2b = lambda f: struct.pack('f', f)
-b2f = lambda b: struct.unpack('f', b)[0]
-jload = lambda j: ujson.loads(j)
-jdump = lambda d: ujson.dumps(d)
+
+class Header(object):
+    def __init__(self, header):
+        self.data = header.get('data')
+        self.version = header.get('version')
+        self.uid = header.get('uid')
+        self.rate = header.get('rate')
+        self.compression = header.get('compression')
+        self.channels = header.get('channels')
+        self.timestamp = header.get('timestamp')
+        self.timeout = header.get('timeout')
 
 
 class Signal(object):
@@ -61,3 +69,8 @@ class Signal(object):
     @property
     def channels(self):
         return len(self.signals)
+
+f2b = lambda f: struct.pack('f', f)
+b2f = lambda b: struct.unpack('f', b)[0]
+jload = lambda j: ujson.loads(j)
+jdump = lambda d: ujson.dumps(d)
