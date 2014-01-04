@@ -16,7 +16,7 @@ class Subscriber(object):
         while True:
             print 'listening'
             msg = self.socket.recv()
-            print msg
+            yield msg
 
     def close(self):
         print 'Closing time..'

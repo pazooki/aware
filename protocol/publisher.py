@@ -23,7 +23,7 @@ class Publisher(object):
         print outgoing
         self.socket.send(outgoing)
 
-    def transfer(self, data):
+    def publish(self, data):
         outgoing = 'signal %s' % self.payload(data)
         print outgoing
         self.socket.send(data=outgoing, flags=zmq.NOBLOCK)
