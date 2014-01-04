@@ -2,6 +2,6 @@ from protocol.subscriber import Subscriber
 
 if '__main__' == __name__:
     sub = Subscriber()
+    sub.ack()
     for data in sub.listen():
-        print data
-    sub.close()
+        print data.get('signals')
