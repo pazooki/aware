@@ -8,13 +8,13 @@ class Wave(object):
     A sine wave oscillator.
     """
 
-    def __init__(self, form='sin', amp=1.0, freq=440, phase=0.0):
+    def __init__(self, form='sin', amp=1.0, freq=440, phase=0.0, ksmps=10):
         self.amp = amp
         self.freq = float(freq)
         self.phase = phase
         self.index = 0
         self.sr = 44100
-        self.ksmps = 10
+        self.ksmps = ksmps
         self.form = form
         self.waves = {'sin': math.sin, 'cos': math.cos}
         self.func = self.waves.get(self.form)

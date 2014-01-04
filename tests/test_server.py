@@ -1,10 +1,10 @@
 import itertools
-from protocol.server import Server
+from protocol.publisher import Publisher
 from generators import Wave
 
 if __name__ == "__main__":
-    server = Server()
-    server.ack()
-    for sin, cos in itertools.izip(Wave(form='sin', amp=1, freq=1000), Wave(form='cos', amp=1, freq=440)):
-        server.transfer('sig', [sin, cos])
+    server = Publisher()
+    server.open()
+    for sin, cos in itertools.izip(Wave(form='sin', amp=1, freq=1000, ksmps=100), Wave(form='cos', amp=5, freq=4400, ksmps=100)):
+        server.transfer([sin, cos])
     server.close()

@@ -20,7 +20,7 @@ import time
 
 
 HOST = socket.gethostname()
-PORT = 12345
+PORT = 5557
 IP = '127.0.0.1'
 
 
