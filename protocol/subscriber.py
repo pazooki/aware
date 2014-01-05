@@ -1,6 +1,5 @@
 import zmq
 from definition import *
-from ujson import decode
 
 
 class Subscriber(object):
@@ -35,9 +34,9 @@ class Subscriber(object):
     def process(self, msg):
         topic, data = msg.split()
         if topic in ['meta']:
-            return self.meta(decode(data))
+            return self.meta(jload(data))
         elif topic in ['signal']:
-            return decode(data)
+            return jload(data)
 
     def meta(self, data):
         result = getattr(self,
