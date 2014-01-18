@@ -15,9 +15,7 @@ class Subscriber(object):
     def ack(self):
         syncclient = self.context.socket(zmq.REQ)
         syncclient.connect('tcp://localhost:5562')
-        syncclient.send(
-            jdump({'status': 'synchnorize', 'header': self.header})
-        )
+        syncclient.send(jdump({'status': 'synchnorize', 'header': self.header}))
         self.synced = self.process(syncclient.recv())
         self.listen()
 

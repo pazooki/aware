@@ -9,3 +9,9 @@ def get_channels(input_iter, channels):
     for signals in input_iter:
         if len(signals) >= max(channels):
             yield [signals[channel] for channel in channels]
+
+
+def get_channel(input_iter, channel):
+    for signals in input_iter:
+        if len(signals) >= channel:
+            yield signals[channel]

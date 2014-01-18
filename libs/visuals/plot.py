@@ -1,8 +1,14 @@
 import matplotlib.pyplot as plt
 import matplotlib.animation as anime
+import numpy as np
 
 
 class Animate(object):
+    """
+    example:
+        visual = Animate(signal for signal in indexify(get_channels(samples, [4])))
+        visual.play()
+    """
     def __init__(self, input_iter):
         self.fig, self.ax = plt.subplots()
         self.data = list(input_iter)
@@ -24,6 +30,5 @@ class Animate(object):
         return self.line,
 
     def play(self):
-        ani = anime.FuncAnimation(self.fig, self.animate, self.data,
-                                  blit=False, interval=10, repeat=False)
+        ani = anime.FuncAnimation(self.fig, self.animate, self.data, blit=False, interval=10, repeat=False)
         plt.show()
